@@ -67,8 +67,6 @@ function GPSurrogate(x,
     hyperparameters = (; noise_var = 0.1))
     # prior process, for safety remove noise_var from hyperparameters, see docs above
     gp = AbstractGPs.GP(kernel_creator(delete(hyperparameters, :noise_var)))
-    # TODO: document:  noise variance passed into AbstractGPs and not into kernel_creator,
-    # cf. https://juliagaussianprocesses.github.io/AbstractGPs.jl/stable/examples/1-mauna-loa/#Posterior
     # if :noise_var is not in keys(hyperparameters), add entry noise_var = 0.0
     hyperparameters = merge((; noise_var = 0.0), hyperparameters)
     GPSurrogate(x,
