@@ -22,11 +22,13 @@ const default_optimizer = LBFGS(;
 
 Hyperparameters defined on bounded intervals.
 
-Stores a function `compute_initial_points` and options for optimizer from package `Optim`.
+Stores a function `compute_initial_points` and options for an optimization algorithm
+from package `Optim`.
 For `xs` points in the domain and `ys` function values at `xs`, `compute_initial_points(xs,ys)`
 returns a vector of `NamedTuple` elements, where names are equal to hyperparameters
 and corresponding values are of type `ParameterHandling.Bounded`.
-Elements of such a returned vector are used as initial points for hyperparameter optimizer.
+Elements of such a returned vector are used as initial points for hyperparameter optimizer,
+hence initial points can be computed from function evaluation history.
 
 If you wish to always start the optimizer with a single constant initial point, please see the
 example below.
