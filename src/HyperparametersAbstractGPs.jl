@@ -50,6 +50,10 @@ struct BoundedHyperparameters{T}
     maxiter::Int
 end
 
+# The reason for allowing this flexibility of passing a function that can use evaluation
+# history for computing initial points for optimization, is that users might want to use data
+# for this and introduce their preferences how the data is used, for more please see:
+# https://infallible-thompson-49de36.netlify.app/#section-5
 function BoundedHyperparameters(compute_initial_points::Function;
     optimizer = default_optimizer,
     maxiter = 1_000)
