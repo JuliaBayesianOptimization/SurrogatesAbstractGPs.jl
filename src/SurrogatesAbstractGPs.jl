@@ -8,15 +8,15 @@ using SurrogatesBase
 import SurrogatesBase:
     add_point!,
     update_hyperparameters!, hyperparameters,
-    posterior, mean, var, rand
+    mean, var, mean_and_var, rand
 
 import AbstractGPs
 import KernelFunctions
 
 export GPSurrogate,
-        add_point!,
-        update_hyperparameters!, hyperparameters,
-        posterior, mean, var, rand
+    add_point!,
+    update_hyperparameters!, hyperparameters,
+    mean, var, mean_and_var, rand
 
 include("HyperparametersAbstractGPs.jl")
 using .HyperparametersAbstractGPs
@@ -26,7 +26,8 @@ include("utils.jl")
 
 # GPSurrogate for functions defined on R^n, D has to be constrained, as otherwise it could
 # be Any and so the definition of mean would become ambiguous with the one in Statistics
-mutable struct GPSurrogate{D <: Union{Number, AbstractVector}, R, GP, GP_P, F} <: AbstractSurrogate{D,R}
+mutable struct GPSurrogate{D <: Union{Number, AbstractVector}, R, GP, GP_P, F} <:
+               AbstractSurrogate{D, R}
     xs::Vector{D}
     ys::Vector{R}
     # prior process
@@ -35,6 +36,7 @@ mutable struct GPSurrogate{D <: Union{Number, AbstractVector}, R, GP, GP_P, F} <
     hyperparameters::NamedTuple
     kernel_creator::F
 end
+
 """
     GPSurrogate(x,
         y;
@@ -73,7 +75,7 @@ end
 
 # for add_point! copies of x and y need to be made because we get
 # "Error: cannot resize array with shared data " if we push! directly to x and y
-function add_point!(g::GPSurrogate{D,R}, new_x::D, new_y::R) where {D, R}
+function add_point!(g::GPSurrogate{D, R}, new_x::D, new_y::R) where {D, R}
     x_copy = copy(g.xs)
     push!(x_copy, new_x)
     y_copy = copy(g.ys)
@@ -115,30 +117,37 @@ end
 
 hyperparameters(g::GPSurrogate) = g.hyperparameters
 
-# joint posterior, use default in SurrogatesBase for posterior "at point"
-posterior(g::GPSurrogate{D}, xs::Vector{D}) where D = g.gp_posterior(xs)
-
 # mean at point, have to add <: Number, otherwise there is ambiguity with mean from Statistics
-function mean(g::GPSurrogate{D}, x::D) where D <: Union{Number, AbstractVector}
+function mean(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
     only(AbstractGPs.mean(g.gp_posterior([x])))
 end
 # mean at points
-function mean(g::GPSurrogate{D}, xs::Vector{D}) where D <: Union{Number, AbstractVector}
+function mean(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
     AbstractGPs.mean(g.gp_posterior(xs))
 end
 
 # variance at point
-function var(g::GPSurrogate{D},  x::D) where D <: Union{Number, AbstractVector}
+function var(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
     only(AbstractGPs.var(g.gp_posterior([x])))
 end
 # variance at points
-function var(g::GPSurrogate{D},  xs::Vector{D}) where D <: Union{Number, AbstractVector}
+function var(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
     AbstractGPs.var(g.gp_posterior(xs))
 end
 
+# mean and variance at point
+function mean_and_var(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
+    only.(AbstractGPs.mean_and_var(g.gp_posterior([x])))
+end
+# mean and variance at points
+function mean_and_var(g::GPSurrogate{D},
+    x::Vector{D}) where {D <: Union{Number, AbstractVector}}
+    AbstractGPs.mean_and_var(g.gp_posterior(x))
+end
+
 # sample from joint posterior, use default in SurrogatesBase for "at point" version
-function rand(g::GPSurrogate{D}, xs::Vector{D}) where D <: Union{Number, AbstractVector}
-    rand(posterior(g, xs))
+function rand(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
+    rand(g.gp_posterior(xs))
 end
 
 end # module

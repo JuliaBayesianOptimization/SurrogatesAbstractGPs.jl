@@ -41,6 +41,18 @@ end
     @test length(var(s, [2.0, 4.3, 0.4])) == 3
 end
 
+@testset "mean_and_var at point, 1-dim" begin
+    μ, σ² = mean_and_var(s, 1.0)
+    @test 0.7 < μ < 1.1
+    @test 0 <= σ² <= 1
+end
+
+@testset "mean_and_var at points, 1-dim" begin
+    μs, σ²s = mean_and_var(s, [1.0, 3.0])
+    @test length(μs) == 2
+    @test length(σ²s) == 2
+end
+
 @testset "read hyperparameters, 1-dim" begin
     @test hyperparameters(s).lengthscale == 1.0
     @test hyperparameters(s).noise_var == 0.1
@@ -55,17 +67,12 @@ end
     @test old_logpdf <= new_logpdf
 end
 
-@testset "joint posterior, 1-dim" begin
-    posterior(s, [2.3])
-    posterior(s, [2.4, 5.43, 5.0])
-end
-
 @testset "rand at point, 1-dim" begin
     @test isa(rand(s, 1.3), Number)
 end
 
 @testset "rand at points, 1-dim" begin
-    @test length(rand(s, [1.3, 4.]))== 2
+    @test length(rand(s, [1.3, 4.0])) == 2
 end
 
 # 2-dim surrogate
@@ -78,11 +85,11 @@ add_point!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
 end
 
 @testset "mean at point, n-dim" begin
-    @test 4. <= mean(d, [4.9, 4.1]) <= 5.
+    @test 4.0 <= mean(d, [4.9, 4.1]) <= 5.0
 end
 
 @testset "mean at points, n-dim" begin
-    @test length(mean(d, [[2.0, 4.3],[2.4, 1.3]])) == 2
+    @test length(mean(d, [[2.0, 4.3], [2.4, 1.3]])) == 2
 end
 
 # by default, noise_var is set to 0.1
@@ -92,6 +99,18 @@ end
 
 @testset "var at points, n-dim" begin
     @test all(0 .<= var(d, [[6.0, 7.1], [5.0, 21.3]]) .<= 0.3)
+end
+
+@testset "mean_and_var at point, n-dim" begin
+    μ, σ² = mean_and_var(d, [4.9, 4.1])
+    @test 4.0 < μ < 5.0
+    @test 0 <= σ²
+end
+
+@testset "mean_and_var at points, n-dim" begin
+    μs, σ²s = mean_and_var(d, [[2.0, 4.3], [2.4, 1.3]])
+    @test length(μs) == 2
+    @test length(σ²s) == 2
 end
 
 @testset "read default hyperparameters, n-dim" begin
@@ -107,17 +126,13 @@ end
     @test old_logpdf <= new_logpdf
 end
 
-@testset "joint posterior, n-dim" begin
-    posterior(d, [2.3, 5.])
-    posterior(d, [[2.4, 5.43],[3.,5.]])
-end
 @testset "rand at point, n-dim" begin
-    @test isa(rand(d, [1.3, 4.]), Number)
+    @test isa(rand(d, [1.3, 4.0]), Number)
 end
 
 @testset "rand at points, n-dim" begin
-    @test length(rand(d, [[1.3, 4.], [5.6,4.]]))== 2
-    @test isa(rand(d, [[1.3, 4.], [5.6,4.]]), Vector{Float64})
+    @test length(rand(d, [[1.3, 4.0], [5.6, 4.0]])) == 2
+    @test isa(rand(d, [[1.3, 4.0], [5.6, 4.0]]), Vector{Float64})
 end
 
 @testset "utilities" begin
