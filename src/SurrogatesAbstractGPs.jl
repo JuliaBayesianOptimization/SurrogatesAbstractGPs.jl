@@ -5,22 +5,20 @@ module SurrogatesAbstractGPs
 # currently SurrogatesBase is from a fork https://github.com/samuelbelko/SurrogatesBase.jl.git
 # on branch param-abstract-type
 using SurrogatesBase
-import SurrogatesBase:
-    add_point!,
+import SurrogatesBase: add_point!,
     update_hyperparameters!, hyperparameters,
     mean, var, mean_and_var, rand
 
 import AbstractGPs
 import KernelFunctions
 
-export GPSurrogate,
-    add_point!,
-    update_hyperparameters!, hyperparameters,
-    mean, var, mean_and_var, rand
-
 include("HyperparametersAbstractGPs.jl")
 using .HyperparametersAbstractGPs
+
 export BoundedHyperparameters
+export GPSurrogate, add_point!
+export update_hyperparameters!, hyperparameters
+export mean, var, mean_and_var, rand
 
 include("utils.jl")
 
