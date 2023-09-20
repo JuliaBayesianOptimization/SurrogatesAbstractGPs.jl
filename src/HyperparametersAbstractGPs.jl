@@ -57,13 +57,13 @@ end
 function BoundedHyperparameters(compute_initial_points::Function;
     optimizer = default_optimizer,
     maxiter = 1_000)
-    BoundedHyperparameters(compute_initial_points, optimizer, maxiter)
+    return BoundedHyperparameters(compute_initial_points, optimizer, maxiter)
 end
 
 function BoundedHyperparameters(const_inital_point::NamedTuple;
     optimizer = default_optimizer,
     maxiter = 1_000)
-    BoundedHyperparameters((xs, ys) -> [const_inital_point], optimizer, maxiter)
+    return BoundedHyperparameters((xs, ys) -> [const_inital_point], optimizer, maxiter)
 end
 
 # code adopted from:
@@ -109,7 +109,7 @@ function negative_lml(xs, ys, kernel_creator, θ)
         fx = f(xs)
     end
     # negative log marginal likelihood of posterior
-    -logpdf(fx, ys)
+    return -logpdf(fx, ys)
 end
 
 function minimize(loss, θ_initial; optimizer = default_optimizer, maxiter = 1_000)

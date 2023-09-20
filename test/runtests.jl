@@ -9,7 +9,7 @@ unif_prior = BoundedHyperparameters((;
     noise_var = bounded(0.1, 0.0001, 0.2)))
 
 function kernel_creator(hyperparameters)
-    with_lengthscale(KernelFunctions.Matern52Kernel(), hyperparameters.lengthscale)
+    return with_lengthscale(KernelFunctions.Matern52Kernel(), hyperparameters.lengthscale)
 end
 
 # 1-dim surrogate

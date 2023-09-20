@@ -63,7 +63,7 @@ function GPSurrogate(xs,
     gp = AbstractGPs.GP(kernel_creator(delete(hyperparameters, :noise_var)))
     # if :noise_var is not in keys(hyperparameters), add entry noise_var = 0.0
     hyperparameters = merge((; noise_var = 0.0), hyperparameters)
-    GPSurrogate(xs,
+    return GPSurrogate(xs,
         ys,
         gp,
         AbstractGPs.posterior(gp(xs, hyperparameters.noise_var), ys),
@@ -81,7 +81,7 @@ function add_point!(g::GPSurrogate{D, R}, new_x::D, new_y::R) where {D, R}
     updated_posterior = AbstractGPs.posterior(g.gp(x_copy, g.hyperparameters.noise_var),
         y_copy)
     g.xs, g.ys, g.gp_posterior = x_copy, y_copy, updated_posterior
-    nothing
+    return nothing
 end
 
 function add_point!(g::GPSurrogate{D, R}, new_xs::Vector{D}, new_ys::Vector{R}) where {D, R}
@@ -94,7 +94,7 @@ function add_point!(g::GPSurrogate{D, R}, new_xs::Vector{D}, new_ys::Vector{R}) 
     updated_posterior = AbstractGPs.posterior(g.gp(x_copy, g.hyperparameters.noise_var),
         y_copy)
     g.xs, g.ys, g.gp_posterior = x_copy, y_copy, updated_posterior
-    nothing
+    return nothing
 end
 
 """
@@ -110,42 +110,42 @@ function update_hyperparameters!(g::GPSurrogate, prior)
     # update GP and its posterior
     g.gp = AbstractGPs.GP(g.kernel_creator(g.hyperparameters))
     g.gp_posterior = AbstractGPs.posterior(g.gp(g.xs, g.hyperparameters.noise_var), g.ys)
-    nothing
+    return nothing
 end
 
 hyperparameters(g::GPSurrogate) = g.hyperparameters
 
 # mean at point, have to add <: Number, otherwise there is ambiguity with mean from Statistics
 function mean(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
-    only(AbstractGPs.mean(g.gp_posterior([x])))
+    return only(AbstractGPs.mean(g.gp_posterior([x])))
 end
 # mean at points
 function mean(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
-    AbstractGPs.mean(g.gp_posterior(xs))
+    return AbstractGPs.mean(g.gp_posterior(xs))
 end
 
 # variance at point
 function var(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
-    only(AbstractGPs.var(g.gp_posterior([x])))
+    return only(AbstractGPs.var(g.gp_posterior([x])))
 end
 # variance at points
 function var(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
-    AbstractGPs.var(g.gp_posterior(xs))
+    return AbstractGPs.var(g.gp_posterior(xs))
 end
 
 # mean and variance at point
 function mean_and_var(g::GPSurrogate{D}, x::D) where {D <: Union{Number, AbstractVector}}
-    only.(AbstractGPs.mean_and_var(g.gp_posterior([x])))
+    return only.(AbstractGPs.mean_and_var(g.gp_posterior([x])))
 end
 # mean and variance at points
 function mean_and_var(g::GPSurrogate{D},
     x::Vector{D}) where {D <: Union{Number, AbstractVector}}
-    AbstractGPs.mean_and_var(g.gp_posterior(x))
+    return AbstractGPs.mean_and_var(g.gp_posterior(x))
 end
 
 # sample from joint posterior, use default in SurrogatesBase for "at point" version
 function rand(g::GPSurrogate{D}, xs::Vector{D}) where {D <: Union{Number, AbstractVector}}
-    rand(g.gp_posterior(xs))
+    return rand(g.gp_posterior(xs))
 end
 
 end # module
