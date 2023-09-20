@@ -36,14 +36,14 @@ mutable struct GPSurrogate{D <: Union{Number, AbstractVector}, R, GP, GP_P, F} <
 end
 
 """
-    GPSurrogate(x,
-        y;
+    GPSurrogate(xs,
+        ys;
         kernel_creator = (_ -> KernelFunctions.Matern52Kernel()),
         hyperparameters = (; noise_var = 0.1))
 
 Gaussian process surrogate.
 
-Pass points `x` with corresponding evaluations in `y`,
+Pass points `xs` with corresponding evaluations in `ys`,
 `kernel_creator` function and `hyperparameters` of type `NamedTuple`.
 
 `kernel_creator` needs to map `hyperparameters` into a kernel function as defined by the
@@ -54,8 +54,8 @@ will be passed directly to `AbstractGPs`, hence the `kernel_creator` should neve
 the entry `noise_var` inside `hyperparameters`. Please compare with [Mauna loa example](https://juliagaussianprocesses.github.io/AbstractGPs.jl/stable/examples/1-mauna-loa/#Posterior)
 in `AbstractGPs` docs.
 """
-function GPSurrogate(x,
-    y;
+function GPSurrogate(xs,
+    ys;
     kernel_creator = (_ -> KernelFunctions.Matern52Kernel()),
     hyperparameters = (; noise_var = 0.1))
     # prior process, for safety remove noise_var from hyperparameters when passing to
@@ -63,16 +63,16 @@ function GPSurrogate(x,
     gp = AbstractGPs.GP(kernel_creator(delete(hyperparameters, :noise_var)))
     # if :noise_var is not in keys(hyperparameters), add entry noise_var = 0.0
     hyperparameters = merge((; noise_var = 0.0), hyperparameters)
-    GPSurrogate(x,
-        y,
+    GPSurrogate(xs,
+        ys,
         gp,
-        AbstractGPs.posterior(gp(x, hyperparameters.noise_var), y),
+        AbstractGPs.posterior(gp(xs, hyperparameters.noise_var), ys),
         hyperparameters,
         kernel_creator)
 end
 
-# for add_point! copies of x and y need to be made because we get
-# "Error: cannot resize array with shared data " if we push! directly to x and y
+# for add_point! copies of xs and ys need to be made because we get
+# "Error: cannot resize array with shared data " if we push! directly to xs and ys
 function add_point!(g::GPSurrogate{D, R}, new_x::D, new_y::R) where {D, R}
     x_copy = copy(g.xs)
     push!(x_copy, new_x)
