@@ -559,9 +559,9 @@ deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
 uuid = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [[deps.SurrogatesBase]]
-deps = ["Statistics"]
-git-tree-sha1 = "6c26b840d5a4334c5eb48dedb5b1938e5ac14152"
-repo-rev = "param-abstract-type"
+deps = ["Statistics", "StatsBase"]
+git-tree-sha1 = "51c24ef1860a80a39d0fd3094e6bc41d98f40fe3"
+repo-rev = "at_point"
 repo-url = "https://github.com/samuelbelko/SurrogatesBase.jl.git"
 uuid = "89f642e6-4179-4274-8202-c11f4bd9a72c"
 version = "1.0.0-DEV"
