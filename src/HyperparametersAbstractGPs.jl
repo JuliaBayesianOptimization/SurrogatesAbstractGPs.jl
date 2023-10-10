@@ -127,8 +127,7 @@ function minimize(loss, θ_initial; optimizer = default_optimizer, maxiter = 1_0
             G .= only(grad)
             return val
         elseif G !== nothing
-            grad = Zygote.gradient(loss_packed, x)
-            G .= only(grad)
+            G .= only(Zygote.gradient(loss_packed, x))
             return nothing
         elseif F !== nothing
             return loss_packed(x)
