@@ -2,8 +2,8 @@ module SurrogatesAbstractGPs
 # Refactoring and extending registered SurrogatesAbstractGPs package,
 # https://github.com/SciML/Surrogates.jl/tree/e6aa022e612ac57228506e625c662438d385e69d/lib/SurrogatesAbstractGPs
 
-# currently SurrogatesBase is from a fork https://github.com/samuelbelko/SurrogatesBase.jl.git
-# on branch param-abstract-type
+# currently SurrogatesBase is from a fork https://github.com/samuelbelko/SurrogatesBase.jl.git#param-abstract-type
+# (on branch param-abstract-type)
 using SurrogatesBase
 import SurrogatesBase: add_point!,
     update_hyperparameters!, hyperparameters,
