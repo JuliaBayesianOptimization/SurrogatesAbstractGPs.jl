@@ -60,10 +60,10 @@ function BoundedHyperparameters(compute_initial_points::Function;
     return BoundedHyperparameters(compute_initial_points, optimizer, maxiter)
 end
 
-function BoundedHyperparameters(const_inital_point::NamedTuple;
+function BoundedHyperparameters(const_inital_points::Vector;
     optimizer = default_optimizer,
     maxiter = 1_000)
-    return BoundedHyperparameters((xs, ys) -> [const_inital_point], optimizer, maxiter)
+    return BoundedHyperparameters((xs, ys) -> const_inital_points, optimizer, maxiter)
 end
 
 # code adopted from:
