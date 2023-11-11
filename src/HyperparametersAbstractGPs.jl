@@ -91,7 +91,7 @@ function optimize_hyperparameters(xs,
     loss = setup_loss(xs, ys, kernel_creator)
     initial_points = unif_prior.compute_initial_points(xs, ys)
     current_minimum = Inf
-    current_minimizer = zero(first(xs))
+    current_minimizer = first(xs)
     for θ_initial in initial_points
         proposed_minimizer, proposed_minimum = minimize(loss, θ_initial)
         if proposed_minimum < current_minimum

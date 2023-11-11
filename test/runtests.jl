@@ -6,8 +6,7 @@ import AbstractGPs
 
 include("../src/utils.jl")
 
-unif_prior = BoundedHyperparameters([(;
-    lengthscale = bounded(1.0, 0.004, 4.0),
+unif_prior = BoundedHyperparameters([(lengthscale = bounded(1.0, 0.004, 4.0),
     noise_var = bounded(0.1, 0.0001, 0.2))])
 
 function kernel_creator(hyperparameters)
@@ -147,12 +146,15 @@ end
 end
 
 # 2-dim surrogate
-d = GPSurrogate([[5.0, 4.0]], [5])
+d = GPSurrogate([[5.0, 4.0]], [5], hyperparameters = (lengthscale = 1.0, noise_var = 0.1))
 add_points!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
-add_points!(d, [[5, 6.0], [23.0, 2.3]], [10, 20])
+add_points!(d, [[5, 6.0], [23.0, 2.3], [56.,34.],[31.,7.],[2.,5.]], [10, 20,52,10,60])
 
-unif_prior = BoundedHyperparameters([(noise_var = bounded(v, 0.0001, 0.2),)
-                                     for v in range(0.00011, 0.1999, length = 10)])
+unif_prior = BoundedHyperparameters(
+    vec([ (lengthscale = bounded(l, 0.004, 4.0),
+            noise_var = bounded(v, 0.0001, 0.2)) for v in range(0.00011, 0.1999, length = 5),
+        l in range(0.005, 3.999, length = 5)
+        ]))
 
 @testset "update_hyperparameters! with multiple restarts, n-dim" begin
     old_prior = AbstractGPs.GP(d.kernel_creator(delete(d.hyperparameters, :noise_var)))
