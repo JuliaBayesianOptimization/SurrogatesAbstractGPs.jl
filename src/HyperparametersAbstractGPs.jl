@@ -83,10 +83,15 @@ function optimize_hyperparameters(xs,
     ys,
     kernel_creator,
     unif_prior::BoundedHyperparameters)
+    length(xs) == length(ys) ||
+        throw(ArgumentError("Lengths of xs and ys don't match."))
+    isempty(xs) &&
+        throw(ArgumentError("xs is empty"))
+
     loss = setup_loss(xs, ys, kernel_creator)
     initial_points = unif_prior.compute_initial_points(xs, ys)
     current_minimum = Inf
-    current_minimizer = nothing
+    current_minimizer = zero(first(xs))
     for θ_initial in initial_points
         proposed_minimizer, proposed_minimum = minimize(loss, θ_initial)
         if proposed_minimum < current_minimum

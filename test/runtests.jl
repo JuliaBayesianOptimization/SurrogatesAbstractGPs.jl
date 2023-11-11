@@ -149,10 +149,10 @@ end
 # 2-dim surrogate
 d = GPSurrogate([[5.0, 4.0]], [5])
 add_points!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
+add_points!(d, [[5, 6.0], [23.0, 2.3]], [10, 20])
 
 unif_prior = BoundedHyperparameters([(noise_var = bounded(v, 0.0001, 0.2),)
                                      for v in range(0.00011, 0.1999, length = 10)])
-add_points!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
 
 @testset "update_hyperparameters! with multiple restarts, n-dim" begin
     old_prior = AbstractGPs.GP(d.kernel_creator(delete(d.hyperparameters, :noise_var)))

@@ -61,24 +61,25 @@ function GPSurrogate(xs,
     ys;
     kernel_creator = (_ -> KernelFunctions.Matern52Kernel()),
     hyperparameters = (; noise_var = 0.1))
+
     length(xs) == length(ys) ||
         throw(ArgumentError("xs, ys have different lengths"))
-    length(xs) == 0 &&
+    isempty(xs) &&
         throw(ArgumentError("xs and ys are empty"))
-
-    # if :noise_var is not in keys(hyperparameters), add entry noise_var = 1e-18
-    if !(:noise_var in keys(hyperparameters))
-        hyperparameters = merge(hyperparameters, (; noise_var = 1e-18))
-    end
 
     # prior process, for safety remove noise_var from hyperparameters when passing to
     # kernel_creator, see docs of GPSurrogate constructor
     prior = AbstractGPs.GP(kernel_creator(delete(hyperparameters, :noise_var)))
-    posterior = AbstractGPs.posterior(prior(copy(xs), hyperparameters.noise_var), copy(ys))
+
+    if :noise_var in keys(hyperparameters)
+        finite_prior = prior(copy(xs), hyperparameters.noise_var)
+    else
+        finite_prior = prior(copy(xs))
+    end
 
     return GPSurrogate(copy(xs),
         copy(ys),
-        posterior,
+        AbstractGPs.posterior(finite_prior, copy(ys)), # gp_posterior
         hyperparameters,
         kernel_creator)
 end
@@ -86,15 +87,19 @@ end
 function SurrogatesBase.add_points!(g::GPSurrogate, new_xs, new_ys)
     length(new_xs) == length(new_ys) ||
         throw(ArgumentError("new_xs, new_ys have different lengths"))
-    length(new_xs) == 0 &&
+    isempty(new_xs) &&
         throw(ArgumentError("new_xs and new_ys are empty"))
 
     append!(g.xs, new_xs)
     append!(g.ys, new_ys)
+
+    if :noise_var in keys(g.hyperparameters)
+        finite_posterior = g.gp_posterior(new_xs, g.hyperparameters.noise_var)
+    else
+        finite_posterior = g.gp_posterior(new_xs)
+    end
     # efficient sequential conditioning, see https://juliagaussianprocesses.github.io/AbstractGPs.jl/stable/concrete_features/#Sequential-Conditioning
-    g.gp_posterior = AbstractGPs.posterior(g.gp_posterior(new_xs,
-            g.hyperparameters.noise_var),
-        new_ys)
+    g.gp_posterior = AbstractGPs.posterior(finite_posterior, new_ys)
     return g
 end
 
@@ -111,9 +116,14 @@ function SurrogatesBase.update_hyperparameters!(g::GPSurrogate, prior)
     # prior process, for safety remove noise_var from hyperparameters when passing to
     # kernel_creator, see docs of GPSurrogate constructor
     prior = AbstractGPs.GP(g.kernel_creator(delete(g.hyperparameters, :noise_var)))
+    if :noise_var in keys(g.hyperparameters)
+        finite_prior = prior(copy(g.xs), g.hyperparameters.noise_var)
+    else
+        finite_prior = prior(copy(g.xs))
+    end
     # update posterior
-    g.gp_posterior = AbstractGPs.posterior(prior(copy(g.xs), g.hyperparameters.noise_var),
-        copy(g.ys))
+    g.gp_posterior = AbstractGPs.posterior(finite_prior, copy(g.ys))
+
     return nothing
 end
 
@@ -130,6 +140,13 @@ Returned object supports:
 of posterior means and a vector of posterior variances at `xs`
 - `rand(finite_posterior(g, xs))` returns a sample from the joint posterior at points `xs`
 """
-SurrogatesBase.finite_posterior(g::GPSurrogate, xs) = (g.gp_posterior)(xs, g.hyperparameters.noise_var)
+function SurrogatesBase.finite_posterior(g::GPSurrogate, xs)
+    if :noise_var in keys(g.hyperparameters)
+        finite_posterior = (g.gp_posterior)(xs, g.hyperparameters.noise_var)
+    else
+        finite_posterior = (g.gp_posterior)(xs)
+    end
+    return finite_posterior
+end
 
 end # module
