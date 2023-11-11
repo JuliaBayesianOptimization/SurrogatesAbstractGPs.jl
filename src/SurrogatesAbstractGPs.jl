@@ -4,10 +4,8 @@ module SurrogatesAbstractGPs
 
 # currently SurrogatesBase is from a fork https://github.com/samuelbelko/SurrogatesBase.jl.git#finite_posterior
 # (on branch finite_posterior)
-using SurrogatesBase
-import SurrogatesBase: add_points!,
-    update_hyperparameters!, hyperparameters, finite_posterior
 
+using SurrogatesBase
 import AbstractGPs
 import KernelFunctions
 
@@ -85,7 +83,7 @@ function GPSurrogate(xs,
         kernel_creator)
 end
 
-function add_points!(g::GPSurrogate, new_xs, new_ys)
+function SurrogatesBase.add_points!(g::GPSurrogate, new_xs, new_ys)
     length(new_xs) == length(new_ys) ||
         throw(ArgumentError("new_xs, new_ys have different lengths"))
     length(new_xs) == 0 &&
@@ -107,7 +105,7 @@ Maximize the log marginal likelihood with respect to the hyperparameters.
 
 See also [`BoundedHyperparameters`](@ref) that can be used as a prior.
 """
-function update_hyperparameters!(g::GPSurrogate, prior)
+function SurrogatesBase.update_hyperparameters!(g::GPSurrogate, prior)
     # save new hyperparameters
     g.hyperparameters = optimize_hyperparameters(g.xs, g.ys, g.kernel_creator, prior)
     # prior process, for safety remove noise_var from hyperparameters when passing to
@@ -119,19 +117,19 @@ function update_hyperparameters!(g::GPSurrogate, prior)
     return nothing
 end
 
-hyperparameters(g::GPSurrogate) = g.hyperparameters
+SurrogatesBase.hyperparameters(g::GPSurrogate) = g.hyperparameters
 
 """
     finite_posterior(g::GPSurrogate, xs)
 
 Returned object supports:
 
-- `mean(finite_posterior(s,xs))` returns a vector of posterior means at `xs`
-- `var(finite_posterior(s,xs))` returns a vector of posterior variances at `xs`
-- `mean_and_var(finite_posterior(s,xs))` returns a `Tuple` consisting of a vector
+- `mean(finite_posterior(g, xs))` returns a vector of posterior means at `xs`
+- `var(finite_posterior(g, xs))` returns a vector of posterior variances at `xs`
+- `mean_and_var(finite_posterior(g, xs))` returns a `Tuple` consisting of a vector
 of posterior means and a vector of posterior variances at `xs`
-- `rand(finite_posterior(s,xs))` returns a sample from the joint posterior at points `xs`
+- `rand(finite_posterior(g, xs))` returns a sample from the joint posterior at points `xs`
 """
-finite_posterior(g::GPSurrogate, xs) = (g.gp_posterior)(xs, g.hyperparameters.noise_var)
+SurrogatesBase.finite_posterior(g::GPSurrogate, xs) = (g.gp_posterior)(xs, g.hyperparameters.noise_var)
 
 end # module
