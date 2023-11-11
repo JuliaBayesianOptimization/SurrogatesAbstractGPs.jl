@@ -46,13 +46,13 @@ end
 
 Gaussian process surrogate.
 
-Pass points `xs` with corresponding function evaluations in `ys`,
-`kernel_creator` function and `hyperparameters` of type `NamedTuple`.
+The constructor accepts a nonempty vector `xs` with corresponding function evaluations in `ys`
+of the same length, `kernel_creator` function and `hyperparameters` of type `NamedTuple`.
 
 `kernel_creator` needs to map `hyperparameters` into a kernel function from the
 package `KernelFunctions.jl`.
 
-If `hyperparameters` includes an entry with name `noise_var`, then the value of `noise_var`
+If `hyperparameters` includes an entry with key `noise_var`, then the value of `noise_var`
 will be passed directly to `AbstractGPs`, hence the `kernel_creator` should never use
 the entry `noise_var` inside `hyperparameters`. Please compare with [Mauna loa example](https://juliagaussianprocesses.github.io/AbstractGPs.jl/stable/examples/1-mauna-loa/#Posterior)
 in `AbstractGPs` docs.
@@ -66,9 +66,9 @@ function GPSurrogate(xs,
     length(xs) == 0 &&
         throw(ArgumentError("xs and ys are empty"))
 
-    # if :noise_var is not in keys(hyperparameters), add entry noise_var = 0.0
+    # if :noise_var is not in keys(hyperparameters), add entry noise_var = 1e-18
     if !(:noise_var in keys(hyperparameters))
-        hyperparameters = merge(hyperparameters, (; noise_var = 0.0))
+        hyperparameters = merge(hyperparameters, (; noise_var = 1e-18))
     end
 
     # prior process, for safety remove noise_var from hyperparameters when passing to
