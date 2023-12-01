@@ -124,7 +124,7 @@ function SurrogatesBase.update_hyperparameters!(g::GPSurrogate, prior)
     # update posterior
     g.gp_posterior = AbstractGPs.posterior(finite_prior, copy(g.ys))
 
-    return nothing
+    return g
 end
 
 SurrogatesBase.hyperparameters(g::GPSurrogate) = g.hyperparameters
