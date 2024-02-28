@@ -18,9 +18,9 @@ s = GPSurrogate([1.0, 3.0, 4.0], [0.9, 3.1, 4.5],
     kernel_creator = kernel_creator,
     hyperparameters = (; lengthscale = 1.0, noise_var = 0.1))
 
-@testset "add_points!, 1-dim" begin
-    add_points!(s, [5.0], [5.9])
-    add_points!(s, [6.0, 7.1], [5.9, 6.9])
+@testset "update!, 1-dim" begin
+    update!(s, [5.0], [5.9])
+    update!(s, [6.0, 7.1], [5.9, 6.9])
     @test length(s.xs) == 6
     @test all(s.xs .== [1.0, 3.0, 4.0, 5.0, 6.0, 7.1])
     @test all(s.ys .== [0.9, 3.1, 4.5, 5.9, 5.9, 6.9])
@@ -81,9 +81,9 @@ end
 # 2-dim surrogate
 d = GPSurrogate([[5.0, 4.0]], [5])
 unif_prior = BoundedHyperparameters([(noise_var = bounded(0.1, 0.0001, 0.2),)])
-add_points!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
+update!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
 
-@testset "add_points!, n-dim" begin
+@testset "update!, n-dim" begin
     @test length(d.xs) == 3
 end
 
@@ -147,8 +147,8 @@ end
 
 # 2-dim surrogate
 d = GPSurrogate([[5.0, 4.0]], [5], hyperparameters = (lengthscale = 1.0, noise_var = 0.1))
-add_points!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
-add_points!(d, [[5, 6.0], [23.0, 2.3], [56.,34.],[31.,7.],[2.,5.]], [10, 20,52,10,60])
+update!(d, [[6.0, 7.1], [5.0, 21.3]], [5, 6])
+update!(d, [[5, 6.0], [23.0, 2.3], [56.,34.],[31.,7.],[2.,5.]], [10, 20,52,10,60])
 
 unif_prior = BoundedHyperparameters(
     vec([ (lengthscale = bounded(l, 0.004, 4.0),

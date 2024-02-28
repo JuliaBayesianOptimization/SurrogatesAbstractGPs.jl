@@ -2,9 +2,6 @@ module SurrogatesAbstractGPs
 # Refactoring and extending registered SurrogatesAbstractGPs package,
 # https://github.com/SciML/Surrogates.jl/tree/e6aa022e612ac57228506e625c662438d385e69d/lib/SurrogatesAbstractGPs
 
-# currently SurrogatesBase is from a fork https://github.com/samuelbelko/SurrogatesBase.jl.git#finite_posterior
-# (on branch finite_posterior)
-
 using SurrogatesBase
 import AbstractGPs
 import KernelFunctions
@@ -14,7 +11,7 @@ using .HyperparametersAbstractGPs
 
 export BoundedHyperparameters
 export GPSurrogate
-export add_points!, update_hyperparameters!, hyperparameters, finite_posterior
+export update!, finite_posterior, update_hyperparameters!, hyperparameters
 
 # reexport from AbstractGPs
 import AbstractGPs: mean, var, mean_and_var, rand
@@ -84,7 +81,7 @@ function GPSurrogate(xs,
         kernel_creator)
 end
 
-function SurrogatesBase.add_points!(g::GPSurrogate, new_xs, new_ys)
+function SurrogatesBase.update!(g::GPSurrogate, new_xs, new_ys)
     length(new_xs) == length(new_ys) ||
         throw(ArgumentError("new_xs, new_ys have different lengths"))
     isempty(new_xs) &&
